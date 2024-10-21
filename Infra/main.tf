@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-1d"
 }
 
 # Variável para a Subnet Privada
@@ -131,34 +131,5 @@ resource "aws_instance" "private_ec2_backend_2" {
   )
 }
 
-# Grupo de Segurança
-resource "aws_security_group" "sg" {
-  name        = "sg-analise"
-  description = "Grupo de Segurança para a aplicação"
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"  # Permite todo o tráfego
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Removido Elastic Load Balancer (ELB) para evitar problemas
-# Removido Sistema de Arquivos (EFS) para evitar problemas
-# Removido IAM Role para Lambda e Função Lambda (se não forem necessários)
 
