@@ -16,6 +16,12 @@ variable "ecs_cluster_name" {
   default     = "MyEcsCluster"
 }
 
+variable "efs_ids" {
+  description = "List of existing EFS IDs"
+  type        = list(string)
+  default     = []
+}
+
 
 variable "sqs_queue_name" {
   description = "Nome da fila SQS"

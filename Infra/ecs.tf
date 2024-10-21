@@ -87,7 +87,7 @@ resource "aws_ecs_task_definition" "analise_task" {
     name = "mysql_data"
 
     efs_volume_configuration {
-      file_system_id = aws_efs_file_system.mysql_data.id
+   file_system_id = aws_efs_file_system.mysql_data[count.index].id
     }
   }
 }
@@ -124,7 +124,7 @@ variable "file_system_creation_tokens" {
 
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
-  file_system_id = aws_efs_file_system.mysql_data.id
+ file_system_id = aws_efs_file_system.mysql_data[count.index].id
   subnet_id      = "subnet-09424067824895155"  # Substitua pelo ID da sua sub-rede
   security_groups = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
 }
