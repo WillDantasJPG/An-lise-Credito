@@ -162,6 +162,3 @@ resource "aws_security_group" "sg" {
 # Removido Sistema de Arquivos (EFS) para evitar problemas
 # Removido IAM Role para Lambda e Função Lambda (se não forem necessários)
 
-output "api_gateway_url" {
-  value = "${aws_api_gateway_rest_api.my_api.id}.execute-api.${var.region}.amazonaws.com/prod/items"
-}
