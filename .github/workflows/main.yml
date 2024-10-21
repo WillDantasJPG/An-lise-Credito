@@ -76,7 +76,7 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./infra
+        working-directory: ./Infra
 
       - name: Terraform Validate
         run: terraform validate
@@ -84,8 +84,8 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
-        working-directory:  ./infra
+        working-directory:  ./Infra
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
-        working-directory:  ./infra
+        working-directory:  ./Infra

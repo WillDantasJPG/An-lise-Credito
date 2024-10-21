@@ -26,20 +26,20 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./infra
+        working-directory: ./Infra
 
       - name: Terraform Plan Destroy
         run: terraform plan -destroy -out=tfplan -var "dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
-        working-directory:  ./infra
+        working-directory:  ./Infra
 
       - name: Verify Plan
         run: terraform show tfplan
-        working-directory: ./infra
+        working-directory: ./Infra
 
       - name: Terraform Apply Destroy
         run: terraform apply -auto-approve tfplan
-        working-directory: ./infra
+        working-directory: ./Infra
 
       - name: Verify Destruction
         run: terraform show
-        working-directory: ./infra
+        working-directory: ./Infra
