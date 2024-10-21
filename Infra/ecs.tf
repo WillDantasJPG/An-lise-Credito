@@ -1,5 +1,3 @@
-
-
 resource "aws_ecs_task_definition" "analise_task" {
   family                   = "analise_task"
   network_mode             = "awsvpc"
@@ -13,7 +11,7 @@ resource "aws_ecs_task_definition" "analise_task" {
       essential = true
       portMappings = [{
         containerPort = 3306
-        hostPort      = 3306  # Deve ser igual ao containerPort
+        hostPort      = 3306
         protocol      = "tcp"
       }]
       environment = [
@@ -37,7 +35,7 @@ resource "aws_ecs_task_definition" "analise_task" {
       essential = true
       portMappings = [{
         containerPort = 8080
-        hostPort      = 8080  # Deve ser igual ao containerPort
+        hostPort      = 8080
         protocol      = "tcp"
       }]
       environment = [
@@ -85,14 +83,7 @@ resource "aws_ecs_task_definition" "analise_task" {
     name = "mysql_data"
 
     efs_volume_configuration {
-      file_system_id = aws_efs_file_system.mysql_data.id  # Removido `count.index`
+      file_system_id = aws_efs_file_system.mysql_data.id  # Certifique-se de que este recurso existe
     }
   }
-}
-
-
-resource "aws_efs_mount_target" "mysql_data_mount" {
-  file_system_id   = aws_efs_file_system.mysql_data.id  # Removido `count.index`
-  subnet_id        = "subnet-09424067824895155"         # Substitua pelo ID da sua sub-rede
-  security_groups  = ["sg-0123456789abcdef0"]           # Substitua pelo ID do seu grupo de segurança
 }
