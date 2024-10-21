@@ -124,10 +124,6 @@ resource "aws_ecs_service" "analise_service" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  network_configuration {
-    assign_public_ip = true
-  }
-}
 
 resource "aws_efs_file_system" "mysql_data" {
   creation_token = "mysql-data-efs"

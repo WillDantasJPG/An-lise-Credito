@@ -8,7 +8,7 @@
 resource "aws_instance" "public_ec2_backend_1" {
   ami               = var.ami
   availability_zone = var.az
-  instance_type     = var.inst_type
+  instance_type    = var.inst_type
 
   ebs_block_device {
     device_name = "/dev/sda1"
@@ -81,7 +81,7 @@ EOF
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
   availability_zone = var.az
-  instance_type     = var.inst_type
+  instance_type    = var.inst_type
 
   ebs_block_device {
     device_name = "/dev/sda1"
@@ -106,7 +106,7 @@ resource "aws_instance" "private_ec2_backend_2" {
 
     # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
-      git clone https://PERSONAL_ACCESS_TOKEN@github.com/WillDantasJPG/Analise-Credito.git  /home/ubuntu/aws
+      git clone https://PERSONAL_ACCESS_TOKEN@github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
       git pull origin main  # Atualiza o repositório
