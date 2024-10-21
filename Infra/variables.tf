@@ -47,6 +47,13 @@ variable "key_pair_name" {
   default     = "tf_key"
 }
 
+variable "efs_ids" {
+  description = "List of existing EFS IDs."
+  type        = list(string)
+  default     = []  # Defina um valor padrão ou deixe vazio se necessário
+}
+
+
 variable "ami" {
   description = "AMI ID"
   type        = string
