@@ -8,9 +8,3 @@ resource "aws_efs_mount_target" "mysql_data_mount" {
   subnet_id      = output.subnet_id.value  # ID da sua subnet
   security_groups = [output.security_group_id.value]  # Grupo de segurança
 }
-
-resource "aws_efs_mount_target" "my_efs_mount" {
-  file_system_id = aws_efs.my_efs.id      # ID do sistema de arquivos EFS
-  subnet_id      = output.subnet_id.value  # ID da sua subnet
-  security_groups = [output.security_group_id.value]  # Grupo de segurança
-}
