@@ -7,7 +7,7 @@
 # Instância EC2 pública
 resource "aws_instance" "public_ec2_backend_1" {
   ami               = var.ami
-  availability_zone = var.az
+  availability_zone = var.az # Mantém a variável como fonte de zona de disponibilidade
   instance_type    = var.inst_type
 
   ebs_block_device {
@@ -18,7 +18,6 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   key_name                    = "ti_key"
   subnet_id                   = var.subnet_id
- availability_zone = "us-east-1d"
   vpc_security_group_ids      = [var.sg_id]
 
   tags = {
@@ -49,17 +48,13 @@ resource "aws_instance" "public_ec2_backend_1" {
 
     # Baixar a versão mais recente do Docker Compose
     DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K[^\"]+')
-
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    # Atualiza pacotes e instala Java
-    apt-get install -y default-jdk
+    sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
     # Dar permissão de execução ao binário
     chmod +x /usr/local/bin/docker-compose
 
-    # Verifique se a instalação foi bem-sucedida
-    docker-compose --version
+    # Atualiza pacotes e instala Java
+    apt-get install -y default-jdk
 
     # Inicia e habilita o Docker
     systemctl start docker
@@ -80,7 +75,7 @@ EOF
 # Instância EC2 privada
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
-  availability_zone = "us-east-1d"
+  availability_zone = var.az # Mantém a variável como fonte de zona de disponibilidade
   instance_type    = var.inst_type
 
   ebs_block_device {
@@ -122,11 +117,10 @@ resource "aws_instance" "private_ec2_backend_2" {
 
     # Baixar a versão mais recente do Docker Compose
     DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K[^\"]+')
+    sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    # Atualiza pacotes e instala Java
-    apt-get install -y default-jdk
+    # Dar permissão de execução ao binário
+    chmod +x /usr/local/bin/docker-compose
 
     # Inicia e habilita o Docker
     systemctl start docker
@@ -163,7 +157,7 @@ resource "aws_api_gateway_rest_api" "my_api" {
 # Elastic Load Balancer
 resource "aws_elb" "my_elb" {
   name               = var.elb_name
-availability_zone = var.az
+  availability_zone  = var.az # Mantém a variável como fonte de zona de disponibilidade
 
   listener {
     instance_port     = 80
@@ -204,7 +198,7 @@ resource "aws_cognito_user_pool" "my_user_pool" {
 
 # Cognito User Pool Client
 resource "aws_cognito_user_pool_client" "my_client" {
-  name         = var.cognito_client_name
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
-  generate_secret = false
+  name             = var.cognito_client_name
+  user_pool_id     = aws_cognito_user_pool.my_user_pool.id
+  generate_secret  = false
 }
