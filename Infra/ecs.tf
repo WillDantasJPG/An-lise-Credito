@@ -125,8 +125,6 @@ resource "aws_ecs_service" "analise_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = aws_subnet.my_subnet[*].id
-    security_groups  = [aws_security_group.my_security_group.id]
     assign_public_ip = true
   }
 }
@@ -141,5 +139,4 @@ resource "aws_efs_file_system" "mysql_data" {
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id = aws_efs_file_system.mysql_data.id
-  subnet_id      = aws_subnet.my_subnet[0].id
 }

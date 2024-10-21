@@ -7,19 +7,14 @@ output "ecs_service_name" {
 }
 
 
-output "vpc_id" {
-  value = aws_vpc.my_vpc.id
-}
-
-
-output "subnet_ids" {
-  value = aws_subnet.my_subnet[*].id
-}
-
 output "subnet_id" {
-  value = var.subnet_id
+  description = "Subnet ID"
+  type        = string
+  default     = "subnet-09424067824895155"
 }
 
 output "security_group_id" {
-  value = var.sg_id
+ description = "Security Group ID"
+   type        = string
+   default     = "sg-08a6c790338e94c72"
 }
