@@ -102,7 +102,7 @@ resource "aws_ecs_service" "analise_service" {
   network_configuration {
     subnets          = ["subnet-09424067824895155"]  # Use a sua sub-rede válida
     security_groups  = ["sg-0123456789abcdef0"]      # Substitua pelo ID do seu grupo de segurança
-    assign_public_ip = "ENABLED"
+    assign_public_ip = true                          # Altere para true, em vez de "ENABLED"
   }
 }
 
