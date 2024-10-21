@@ -10,14 +10,8 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1" # ou a região que você está usando
+  region = "us-east-1d"
 }
-
-# Define o par de chaves (opcional)
-# resource "aws_key_pair" "generated_key" {
-#   key_name   = var.key_pair_name
-#   public_key = file("${path.module}/tf_key.pem.pub")
-# }
 
 # Instância EC2 pública
 resource "aws_instance" "public_ec2_backend_1" {
@@ -94,10 +88,8 @@ resource "aws_instance" "private_ec2_backend_2" {
     volume_type = "gp3"
   }
 
-  key_name                    = "ti_key"
-  subnet_id                   = var.subnet_id # Subnet privada
-  associate_public_ip_address = false
-  vpc_security_group_ids      = [var.sg_id]
+  subnet_id              = var.private_subnet_id
+  vpc_security_group_ids = [var.sg_id]
 
   tags = {
     Name = "analise-privada-ec2-02"
@@ -145,16 +137,26 @@ resource "aws_instance" "private_ec2_backend_2" {
   )
 }
 
-# API Gateway
-resource "aws_api_gateway_rest_api" "my_api" {
-  name        = var.api_gateway_name
-  description = "API para o serviço"
+# EFS
+resource "aws_efs_file_system" "mysql_data" {
+  creation_token = "mysql_data"
+  performance_mode = "generalPurpose"
+
+  tags = {
+    Name = "mysql_data"
+  }
 }
 
-# Load Balancer
+# Exemplo de API Gateway (removido os IAM roles)
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "my_api"
+  description = "My API description"
+}
+
+# Exemplo de Load Balancer (removido os IAM roles)
 resource "aws_elb" "my_elb" {
-  name               = "MyNewLoadBalancer" # Verifique se o nome já existe
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1d"] # Adicione suas zonas de disponibilidade
+  name               = "MyNewLoadBalancer"
+  availability_zones = [var.az]
 
   listener {
     instance_port     = 80
@@ -172,66 +174,100 @@ resource "aws_elb" "my_elb" {
   }
 
   tags = {
-    Name = "MyNewLoadBalancer"
+    Name = "MyLoadBalancer"
   }
 }
 
-# SQS Queue
+# Exemplo de SQS Queue (removido os IAM roles)
 resource "aws_sqs_queue" "my_queue" {
-  name = var.sqs_queue_name
+  name = "MyQueue"
 }
 
-# Cognito User Pool
+# Exemplo de Cognito User Pool (removido os IAM roles)
 resource "aws_cognito_user_pool" "my_user_pool" {
-  name = var.cognito_user_pool_name
+  name = "MyUserPool"
 }
 
-# Cognito User Pool Client
-resource "aws_cognito_user_pool_client" "my_client" {
-  name         = var.cognito_client_name
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
-  generate_secret = false
-}
-
-# Função Lambda
+# Criação de uma função Lambda
 resource "aws_lambda_function" "my_lambda" {
   function_name = "my_lambda_function"
-  handler       = "index.handler"
-  runtime       = "nodejs14.x" # ou a versão que você preferir
   role          = aws_iam_role.lambda_exec.arn
-  filename      = "path/to/your/lambda.zip" # Substitua pelo caminho do seu pacote zip
+  handler       = "index.handler" # Nome do arquivo e da função
+  runtime       = "nodejs14.x"     # Runtime do Lambda
 
-  environment {
-    variables = {
-      MY_ENV_VARIABLE = var.my_env_variable # Usando a variável que você definiu
-    }
-  }
+  # O código pode ser enviado diretamente ou referenciando um arquivo zip em um bucket S3
+  s3_bucket = "your-s3-bucket"
+  s3_key    = "path/to/lambda.zip"
 
-  tags = {
-    Name = "MyLambdaFunction"
-  }
+  # Configurações de timeout e memória
+  timeout  = 10
+  memory_size = 128
 }
 
-# Role para a função Lambda
 resource "aws_iam_role" "lambda_exec" {
-  name               = "lambda_exec_role"
+  name = "lambda_exec_role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Action    = "sts:AssumeRole"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-        Effect    = "Allow"
-        Sid       = ""
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Principal = {
+        Service = "lambda.amazonaws.com"
       }
-    ]
+      Effect    = "Allow"
+      Sid       = ""
+    }]
   })
 }
 
-# Policy para a função Lambda
-resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.lambda_exec.name
+# Criação de um cluster ECS
+resource "aws_ecs_cluster" "my_ecs_cluster" {
+  name = "my_ecs_cluster"
+}
+
+# Definição da tarefa ECS
+resource "aws_ecs_task_definition" "my_ecs_task" {
+  family                   = "my_task"
+  requires_compatibilities = ["FARGATE"] # Ou EC2, dependendo de como você deseja executar
+
+  network_mode = "awsvpc" # Necessário para Fargate
+
+  container_definitions = jsonencode([
+    {
+      name      = "my_container"
+      image     = "nginx"  # Imagem do contêiner
+      memory    = 512       # Memória em MiB
+      cpu       = 256       # CPU em unidades
+      essential = true
+      portMappings = [{
+        containerPort = 80
+        hostPort      = 80
+        protocol      = "tcp"
+      }]
+    }
+  ])
+}
+
+# Criação de um serviço ECS
+resource "aws_ecs_service" "my_ecs_service" {
+  name            = "my_ecs_service"
+  cluster         = aws_ecs_cluster.my_ecs_cluster.id
+  task_definition = aws_ecs_task_definition.my_ecs_task.arn
+  desired_count   = 1
+
+  launch_type = "FARGATE" # Ou EC2
+
+  network_configuration {
+  subnet_id        = "subnet-09424067824895155"  # Substitua pelo ID da sua sub-rede
+    security_groups  = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
+    assign_public_ip = true
+  }
+}
+
+output "lambda_function_arn" {
+  value = aws_lambda_function.my_lambda.arn
+}
+
+output "ecs_cluster_name" {
+  value = aws_ecs_cluster.my_ecs_cluster.name
 }
