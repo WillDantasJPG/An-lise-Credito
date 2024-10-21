@@ -101,18 +101,27 @@ resource "aws_ecs_service" "analise_service" {
 
   network_configuration {
     subnets          = ["subnet-09424067824895155"]  # Use a sua sub-rede válida
-    security_groups  = ["sg-0123456789abcdef0"]      # Substitua pelo ID do seu grupo de segurança
+    security_groups  = ["sg-08a6c790338e94c72"]      # Substitua pelo ID do seu grupo de segurança
     assign_public_ip = true                          # Altere para true, em vez de "ENABLED"
   }
 }
 
 resource "aws_efs_file_system" "mysql_data" {
-  creation_token = "mysql-data-efs"
-
-  lifecycle {
-    prevent_destroy = true
+  count          = length(var.file_system_creation_tokens) // Para garantir que não crie duplicados
+  creation_token = var.file_system_creation_tokens[count.index] // Utilize a variável para o token
+  performance_mode = "generalPurpose"
+  tags = {
+    Name = "mysql-data-efs"
   }
 }
+
+/
+variable "file_system_creation_tokens" {
+  description = "Lista de tokens para a criação do File System"
+  type        = list(string)
+  default     = ["mysql-data-efs"]
+}
+
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id = aws_efs_file_system.mysql_data.id

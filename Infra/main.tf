@@ -102,10 +102,9 @@ resource "aws_api_gateway_rest_api" "my_api" {
   description = "API para o serviço"
 }
 
-# Elastic Load Balancer
 resource "aws_elb" "my_elb" {
-  name               = "MyNewLoadBalancer"  # Altere o nome se necessário
-  availability_zones = [var.az]
+  name               = "MyNewLoadBalancer" // Verifique se o nome já existe
+  availability_zones = ["us-east-1a", "us-east-1b"] // Adicione suas zonas de disponibilidade
 
   listener {
     instance_port     = 80
@@ -122,12 +121,11 @@ resource "aws_elb" "my_elb" {
     unhealthy_threshold = 2
   }
 
-  instances = [aws_instance.public_ec2_backend_1.id]
-
   tags = {
-    Name = "MyNewLoadBalancer"  # Altere o nome se necessário
+    Name = "MyNewLoadBalancer"
   }
 }
+
 
 # ECS Cluster
 resource "aws_ecs_cluster" "my_cluster" {
