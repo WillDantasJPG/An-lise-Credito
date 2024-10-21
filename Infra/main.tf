@@ -88,8 +88,8 @@ resource "aws_instance" "private_ec2_backend_2" {
     volume_type = "gp3"
   }
 
-  subnet_id              = var.private_subnet_id
-  vpc_security_group_ids = [var.sg_id]
+subnets          = [var.subnet_id]  # Usando a variável subnet_id
+  security_groups  = [var.sg_id]      # Usando a variável sg_id
 
   tags = {
     Name = "analise-privada-ec2-02"
@@ -248,8 +248,8 @@ resource "aws_ecs_service" "my_ecs_service" {
   launch_type = "FARGATE" # Ou EC2
 
   network_configuration {
-  subnet_id        = "subnet-09424067824895155"  # Substitua pelo ID da sua sub-rede
-    security_groups  = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
+subnets          = [var.subnet_id]  # Usando a variável subnet_id
+    security_groups  = [var.sg_id]      # Usando a variável sg_id
     assign_public_ip = true
   }
 }
