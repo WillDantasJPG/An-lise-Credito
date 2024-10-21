@@ -18,7 +18,7 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   key_name                    = "ti_key"
   subnet_id                   = var.subnet_id
- availability_zone = "us-east-1d"  a
+ availability_zone = "us-east-1d"
   vpc_security_group_ids      = [var.sg_id]
 
   tags = {
