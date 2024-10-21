@@ -1,0 +1,36 @@
+services:
+  analise-backend:
+    build: .
+    ports:
+      - "5225:8080"
+    environment:
+      SPRING_APPLICATION_NAME: servico-credito
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/analiseDB
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: will@123
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+      SPRING_JPA_SHOW_SQL: "true"
+      MERCADO_PAGO_ACCESS_TOKEN: APP_USR-824007135770533-052015-ba3b308de0439bc6e6ad15c2c6152ca6-1722687388
+    networks:
+      - analise
+
+  mysql:
+    image: mysql:8.0.37
+    environment:
+      MYSQL_ROOT_PASSWORD: will@123  # Senha do MySQL
+      MYSQL_DATABASE: analiseDB  # Nome do banco de dados
+    ports:
+      - "3306:3306"  # Porta do MySQL
+    volumes:
+      - ./Data:/docker-entrypoint-initdb.d  # Mapeia a pasta Data para executar scripts SQL de inicialização
+    networks:
+      - analise
+
+networks:
+  analise:
+    driver: bridge
+
+volumes:
+  mysql_data:  # Cria um volume nomeado para o MySQL
