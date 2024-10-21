@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1d"  # Corrigido para uma região válida (ex: us-east-1)
+  region = "us-east-1"  # Corrigido para uma região válida
 }
 
 # Instância EC2 pública
@@ -75,6 +75,7 @@ resource "aws_instance" "public_ec2_backend_1" {
   EOF
   )
 }
+
 # Instância EC2 privada
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
@@ -135,7 +136,8 @@ resource "aws_instance" "private_ec2_backend_2" {
      sudo docker-compose up --build
    EOF
    )
- }
+}
+
 # Grupo de Segurança
 resource "aws_security_group" "sg" {
   name        = "sg-analise"
@@ -224,31 +226,18 @@ resource "aws_api_gateway_method" "my_method" {
   authorization = "NONE"
 }
 
-# Função Lambda
 resource "aws_lambda_function" "my_lambda" {
   function_name = "my_lambda_function"
-  handler       = "index.handler"  # Ajuste conforme seu código
-  runtime       = "nodejs14.x"      # Ajuste o runtime conforme necessário
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
 
-  s3_bucket     = "my_lambda_bucket" # Nome do bucket S3 onde o .zip da função está armazenado
-  s3_key        = "my_lambda_function.zip" # Nome do arquivo .zip
+  s3_bucket     = "my_lambda_bucket"
+  s3_key        = "my_lambda_function.zip"
+  role          = aws_iam_role.lambda_role.arn  # Adicione esta linha
 
-  # Não há configurações IAM aqui
-}
-
-# Outputs
-output "public_ip" {
-  value = aws_instance.public_ec2_backend_1.public_ip
-}
-
-output "private_ip" {
-  value = aws_instance.private_ec2_backend_2.private_ip
-}
-
-output "efs_id" {
-  value = aws_efs_file_system.my_efs.id
+  # Outras configurações, se necessárias
 }
 
 output "api_gateway_url" {
-  value = aws_api_gateway_rest_api.my_api.invoke_url
+  value = aws_api_gateway_rest_api.my_api.execution_invoke_url
 }
