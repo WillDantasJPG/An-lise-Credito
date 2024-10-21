@@ -41,8 +41,7 @@ resource "aws_ecs_task_definition" "analise_task" {
   cpu                      = "512"
   memory                   = "1024"
 
-  container_definitions = jsonencode([
-    {
+  container_definitions = jsonencode([{
       name      = "mysql"
       image     = "mysql:8.0.37"
       essential = true
@@ -51,8 +50,7 @@ resource "aws_ecs_task_definition" "analise_task" {
         hostPort      = 3306
         protocol      = "tcp"
       }]
-      environment = [
-        {
+      environment = [{
           name  = "MYSQL_ROOT_PASSWORD"
           value = "will@123"
         },
@@ -75,8 +73,7 @@ resource "aws_ecs_task_definition" "analise_task" {
         hostPort      = 5225
         protocol      = "tcp"
       }]
-      environment = [
-        {
+      environment = [{
           name  = "SPRING_APPLICATION_NAME"
           value = "servico-credito"
         },
@@ -123,7 +120,7 @@ resource "aws_ecs_service" "analise_service" {
   task_definition = aws_ecs_task_definition.analise_task.arn
   desired_count   = 1
   launch_type     = "FARGATE"
-
+}
 
 resource "aws_efs_file_system" "mysql_data" {
   creation_token = "mysql-data-efs"
