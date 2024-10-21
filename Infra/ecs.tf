@@ -82,8 +82,5 @@ resource "aws_ecs_task_definition" "analise_task" {
   volume {
     name = "mysql_data"
 
-    efs_volume_configuration {
-      file_system_id = aws_efs_file_system.mysql_data.id  # Certifique-se de que este recurso existe
-    }
   }
 }
