@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "analise_task" {
       }]
       environment = [{
           name  = "MYSQL_ROOT_PASSWORD"
-          value = "will@123"
+          value = "will@123"  # Considere usar um gerenciador de segredos
         },
         {
           name  = "MYSQL_DATABASE"
@@ -87,7 +87,7 @@ resource "aws_ecs_task_definition" "analise_task" {
         },
         {
           name  = "SPRING_DATASOURCE_PASSWORD"
-          value = "will@123"
+          value = "will@123"  # Considere usar um gerenciador de segredos
         },
         {
           name  = "SPRING_DATASOURCE_DRIVER_CLASS_NAME"
@@ -107,7 +107,7 @@ resource "aws_ecs_task_definition" "analise_task" {
         },
         {
           name  = "MERCADO_PAGO_ACCESS_TOKEN"
-          value = "APP_USR-824007135770533-052015-ba3b308de0439bc6e6ad15c2c6152ca6-1722687388"
+          value = "APP_USR-824007135770533-052015-ba3b308de0439bc6e6ad15c2c6152ca6-1722687388"  # Considere usar um gerenciador de segredos
         }
       ]
     }
@@ -132,4 +132,6 @@ resource "aws_efs_file_system" "mysql_data" {
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id = aws_efs_file_system.mysql_data.id
+  subnet_id      = output.subnet_id.value  # Defina a subnet apropriada
+  security_groups = [output.security_group_id.value]  # Defina o grupo de segurança apropriado
 }

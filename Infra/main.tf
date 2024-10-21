@@ -33,11 +33,10 @@ resource "aws_instance" "public_ec2_backend_1" {
 
     # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
-      git clone https://PERSONAL_ACCESS_TOKEN@github.com/nhyira-group5/Back-End.git /home/ubuntu/aws
-      git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
+      sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
-      git pull origin main  # Atualiza o repositório
+      sudo git pull origin main  # Atualiza o repositório
     fi
 
     # Instala o MySQL
@@ -69,7 +68,7 @@ resource "aws_instance" "public_ec2_backend_1" {
     cd /home/ubuntu/aws
 
     # Constrói a imagem Docker usando o Dockerfile
-    docker build -t nhyira-api .
+    docker build -t analise-backend .
 
     # Executa o Docker Compose para iniciar os serviços
     docker-compose up --build
@@ -106,10 +105,10 @@ resource "aws_instance" "private_ec2_backend_2" {
 
     # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
-      git clone https://PERSONAL_ACCESS_TOKEN@github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
+       sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
-      git pull origin main  # Atualiza o repositório
+      sudo git pull origin main  # Atualiza o repositório
     fi
 
     # Instala o MySQL
