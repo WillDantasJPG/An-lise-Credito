@@ -1,4 +1,3 @@
-
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "my_ecs_cluster"
 }
@@ -16,10 +15,11 @@ resource "aws_ecs_task_definition" "analise_task" {
       essential = true
       portMappings = [{
         containerPort = 3306
-        hostPort      = 3306
+        hostPort      = 3306  # Deve ser igual ao containerPort
         protocol      = "tcp"
       }]
-      environment = [{
+      environment = [
+        {
           name  = "MYSQL_ROOT_PASSWORD"
           value = "will@123"  # Considere usar um gerenciador de segredos
         },
@@ -39,10 +39,11 @@ resource "aws_ecs_task_definition" "analise_task" {
       essential = true
       portMappings = [{
         containerPort = 8080
-        hostPort      = 5225
+        hostPort      = 8080  # Deve ser igual ao containerPort
         protocol      = "tcp"
       }]
-      environment = [{
+      environment = [
+        {
           name  = "SPRING_APPLICATION_NAME"
           value = "servico-credito"
         },
@@ -81,6 +82,14 @@ resource "aws_ecs_task_definition" "analise_task" {
       ]
     }
   ])
+
+  volume {
+    name = "mysql_data"
+
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.mysql_data.id
+    }
+  }
 }
 
 resource "aws_ecs_service" "analise_service" {
@@ -89,6 +98,12 @@ resource "aws_ecs_service" "analise_service" {
   task_definition = aws_ecs_task_definition.analise_task.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = ["subnet-09424067824895155"]  # Use a sua sub-rede válida
+    security_groups  = ["sg-0123456789abcdef0"]      # Substitua pelo ID do seu grupo de segurança
+    assign_public_ip = "ENABLED"
+  }
 }
 
 resource "aws_efs_file_system" "mysql_data" {
@@ -101,6 +116,6 @@ resource "aws_efs_file_system" "mysql_data" {
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id = aws_efs_file_system.mysql_data.id
-    subnet_id      = "subnet-0123456789abcdef0"  # Substitua pelo ID da sua sub-rede
-    security_groups = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
+  subnet_id      = "subnet-09424067824895155"  # Substitua pelo ID da sua sub-rede
+  security_groups = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
 }

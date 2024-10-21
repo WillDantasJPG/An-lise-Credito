@@ -8,6 +8,6 @@ resource "aws_efs_file_system" "my_efs" {
 
 resource "aws_efs_mount_target" "my_efs_mount" {
   file_system_id  = aws_efs_file_system.my_efs.id
-  subnet_id       = "subnet-0123456789abcdef0"
+  subnet_id       = "subnet-09424067824895155"
   security_groups  = ["sg-0123456789abcdef0"]
 }
