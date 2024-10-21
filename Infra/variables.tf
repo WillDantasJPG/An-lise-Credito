@@ -22,6 +22,13 @@ variable "efs_ids" {
   default     = []
 }
 
+# Definindo uma variável de ambiente no arquivo .tf
+variable "my_env_variable" {
+  description = "Uma variável de ambiente de exemplo para a função Lambda"
+  type        = string
+  default     = "valor_default" # Valor padrão, se necessário
+}
+
 
 variable "sqs_queue_name" {
   description = "Nome da fila SQS"

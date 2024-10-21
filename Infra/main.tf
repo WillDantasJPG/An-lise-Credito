@@ -204,13 +204,16 @@ resource "aws_lambda_function" "my_lambda" {
   filename      = "path/to/your/lambda.zip" # Substitua pelo caminho do seu pacote zip
 
   environment {
-    VARIAVEL_EXEMPLO = "valor"
+    variables = {
+      MY_ENV_VARIABLE = var.my_env_variable # Usando a variável que você definiu
+    }
   }
 
   tags = {
     Name = "MyLambdaFunction"
   }
 }
+
 
 # Role para a função Lambda
 resource "aws_iam_role" "lambda_exec" {
