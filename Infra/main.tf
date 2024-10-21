@@ -18,7 +18,7 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   key_name                    = "ti_key"
   subnet_id                   = var.subnet_id
-  associate_public_ip_address = true  # Esta configuração é necessária para instâncias públicas
+  associate_public_ip_address = true
   vpc_security_group_ids      = [var.sg_id]
 
   tags = {
@@ -27,41 +27,19 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-
-    # Cria a pasta aws
     mkdir -p /home/ubuntu/aws
-
-    # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
       sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
-      sudo git pull origin main  # Atualiza o repositório
+      sudo git pull origin main
     fi
-
-    # Instala o MySQL
     apt update
-    apt install -y mysql-server
-
-    # Instala Docker e Docker Compose
-    apt update
-    apt install -y docker.io
-
-
-    # Atualiza pacotes e instala Java
-    apt-get install -y default-jdk
-
-    # Inicia e habilita o Docker
+    apt install -y mysql-server docker.io default-jdk
     systemctl start docker
     systemctl enable docker
-
-    # Navega até o diretório do projeto
     cd /home/ubuntu/aws
-
-    # Constrói a imagem Docker usando o Dockerfile
     docker build -t analise-backend .
-
-    # Executa o Docker Compose para iniciar os serviços
     docker-compose up --build
 EOF
   )
@@ -90,41 +68,19 @@ resource "aws_instance" "private_ec2_backend_2" {
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
-
-    # Cria a pasta aws
     mkdir -p /home/ubuntu/aws
-
-    # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
       sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
-      sudo git pull origin main  # Atualiza o repositório
+      sudo git pull origin main
     fi
-
-    # Instala o MySQL
     apt update
-    apt install -y mysql-server
-
-    # Instala Docker e Docker Compose
-    apt update
-    apt install -y docker.io
-
-
-    # Atualiza pacotes e instala Java
-    apt-get install -y default-jdk
-
-    # Inicia e habilita o Docker
+    apt install -y mysql-server docker.io default-jdk
     systemctl start docker
     systemctl enable docker
-
-    # Navega até o diretório do projeto
     cd /home/ubuntu/aws
-
-    # Constrói a imagem Docker usando o Dockerfile
     docker build -t nhyira-api .
-
-    # Executa o Docker Compose para iniciar os serviços
     docker-compose up --build
 EOF
   )
@@ -132,12 +88,12 @@ EOF
 
 resource "aws_eip_association" "eip_assoc_01" {
   instance_id  = aws_instance.public_ec2_backend_1.id
-  allocation_id = "eipalloc-05e0ad948c5b56541" # ID de alocação
+  allocation_id = "eipalloc-05e0ad948c5b56541"
 }
 
 resource "aws_eip_association" "eip_assoc_02" {
   instance_id   = aws_instance.private_ec2_backend_2.id
-  allocation_id = "eipalloc-042a32f12eb8c5c62"  # ID de alocação
+  allocation_id = "eipalloc-042a32f12eb8c5c62"
 }
 
 # API Gateway
@@ -148,8 +104,8 @@ resource "aws_api_gateway_rest_api" "my_api" {
 
 # Elastic Load Balancer
 resource "aws_elb" "my_elb" {
-  name               = var.elb_name
-   availability_zones = [var.az]
+  name               = "MyNewLoadBalancer"  # Altere o nome se necessário
+  availability_zones = [var.az]
 
   listener {
     instance_port     = 80
@@ -169,7 +125,7 @@ resource "aws_elb" "my_elb" {
   instances = [aws_instance.public_ec2_backend_1.id]
 
   tags = {
-    Name = var.elb_name
+    Name = "MyNewLoadBalancer"  # Altere o nome se necessário
   }
 }
 
