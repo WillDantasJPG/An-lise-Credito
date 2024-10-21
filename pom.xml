@@ -192,6 +192,15 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version> <!-- Versão do plugin -->
+				<configuration>
+					<source>${java.version}</source> <!-- Usa a versão do Java definida nas propriedades -->
+					<target>${java.version}</target> <!-- Usa a versão do Java definida nas propriedades -->
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
