@@ -84,7 +84,7 @@ variable "subnet_id" {
 variable "region" {
   description = "A região onde os recursos da AWS serão criados"
   type        = string
-  default     = "us-east-1d"  # Defina a região que você está usando
+  default     = "us-east-1"  # Defina a região que você está usando
 }
 
 
