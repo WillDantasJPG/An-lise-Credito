@@ -9,6 +9,6 @@ resource "aws_efs_file_system" "my_efs" {
 
 resource "aws_efs_mount_target" "my_efs_mount" {
   file_system_id = aws_efs_file_system.my_efs.id  # ID do sistema de arquivos EFS
-  subnet_id      = output.subnet_id.value           # ID da sua subnet
-  security_groups = [output.security_group_id.value]  # Grupo de segurança
+     subnet_id      = "subnet-0123456789abcdef0"  # Substitua pelo ID da sua sub-rede
+     security_groups = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
 }

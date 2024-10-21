@@ -132,6 +132,6 @@ resource "aws_efs_file_system" "mysql_data" {
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id = aws_efs_file_system.mysql_data.id
-  subnet_id      = output.subnet_id.value  # Defina a subnet apropriada
-  security_groups = [output.security_group_id.value]  # Defina o grupo de segurança apropriado
+    subnet_id      = "subnet-0123456789abcdef0"  # Substitua pelo ID da sua sub-rede
+    security_groups = ["sg-0123456789abcdef0"]    # Substitua pelo ID do seu grupo de segurança
 }
