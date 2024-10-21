@@ -18,7 +18,7 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   key_name                    = "ti_key"
   subnet_id                   = var.subnet_id
-  associate_public_ip_address = true
+  vailability_zone = "us-east-1d"
   vpc_security_group_ids      = [var.sg_id]
 
   tags = {
@@ -80,7 +80,7 @@ EOF
 # Instância EC2 privada
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
-  availability_zone = var.az
+  availability_zone = "us-east-1d"
   instance_type    = var.inst_type
 
   ebs_block_device {
