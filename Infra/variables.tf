@@ -81,6 +81,14 @@ variable "subnet_id" {
   default     = "subnet-09424067824895155"
 }
 
+variable "region" {
+  description = "A região onde os recursos da AWS serão criados"
+  type        = string
+  default     = "us-east-1d"  # Defina a região que você está usando
+}
+
+
+
 variable "sg_id" {
   description = "Security Group ID"
   type        = string

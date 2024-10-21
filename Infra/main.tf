@@ -265,5 +265,5 @@ resource "aws_lambda_function" "my_lambda" {
 }
 
 output "api_gateway_url" {
-  value = "${aws_api_gateway_rest_api.my_api.id}.execute-api.${var.region}.amazonaws.com/prod/items"  # Substituído por um output válido
+  value = "${aws_api_gateway_rest_api.my_api.id}.execute-api.${var.region}.amazonaws.com/prod/items"
 }
