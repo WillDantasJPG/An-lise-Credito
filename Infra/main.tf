@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1d"
+  region = "us-east-1"  # Corrigido para um região válida (ex: us-east-1)
 }
 
 # Instância EC2 pública
@@ -88,13 +88,12 @@ resource "aws_instance" "private_ec2_backend_2" {
     volume_type = "gp3"
   }
 
-  subnet_id          = var.subnet_id    # Usando a variável subnet_id
-  vpc_security_group_ids = [var.sg_id]  # Usando a variável sg_id
+  subnet_id                = var.subnet_id
+  vpc_security_group_ids   = [var.sg_id]
 
   tags = {
     Name = "analise-privada-ec2-02"
   }
-}
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
@@ -137,6 +136,7 @@ resource "aws_instance" "private_ec2_backend_2" {
   EOF
   )
 }
+
 
 # Exemplo de API Gateway (removido os IAM roles)
 resource "aws_api_gateway_rest_api" "my_api" {
