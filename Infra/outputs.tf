@@ -6,9 +6,11 @@ output "ecs_service_name" {
   value = aws_ecs_service.analise_service.name
 }
 
+
 output "vpc_id" {
   value = aws_vpc.my_vpc.id
 }
+
 
 output "subnet_ids" {
   value = aws_subnet.my_subnet[*].id
