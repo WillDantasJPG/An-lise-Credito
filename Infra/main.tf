@@ -40,7 +40,7 @@ resource "aws_instance" "public_ec2_backend_1" {
     Name = "analise-privada-ec2-01"
   }
 
-user_data = base64encode(<<-EOF
+  user_data = base64encode(<<-EOF
     #!/bin/bash
     mkdir -p /home/ubuntu/aws
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
@@ -49,7 +49,7 @@ user_data = base64encode(<<-EOF
       cd /home/ubuntu/aws
       sudo git pull origin main
     fi
- # Instala o MySQL
+    # Instala o MySQL
     sudo apt update
     sudo apt install -y mysql-server
 
@@ -58,30 +58,29 @@ user_data = base64encode(<<-EOF
     sudo apt install -y docker.io
 
     # Atualiza pacotes e instala Java
-        sudo apt-get install -y default-jdk
+    sudo apt-get install -y default-jdk
 
-        # Dar permissão de execução ao binário
-        sudo chmod +x /usr/local/bin/docker-compose
+    # Dar permissão de execução ao binário
+    sudo chmod +x /usr/local/bin/docker-compose
 
-        # Verifique se a instalação foi bem-sucedida
-        docker-compose --version
+    # Verifique se a instalação foi bem-sucedida
+    docker-compose --version
 
-        # Inicia e habilita o Docker
-        sudo systemctl start docker
-        sudo systemctl enable docker
+    # Inicia e habilita o Docker
+    sudo systemctl start docker
+    sudo systemctl enable docker
 
-        # Navega até o diretório do projeto
-        cd /home/ubuntu/aws
+    # Navega até o diretório do projeto
+    cd /home/ubuntu/aws
 
-        # Constrói a imagem Docker usando o Dockerfile
-        sudo docker build -t nhyira-api .
+    # Constrói a imagem Docker usando o Dockerfile
+    sudo docker build -t nhyira-api .
 
-        # Executa o Docker Compose para iniciar os serviços
-        sudo docker-compose up --build
-    EOF
-      )
-    }
-
+    # Executa o Docker Compose para iniciar os serviços
+    sudo docker-compose up --build
+  EOF
+  )
+}
 
 # Instância EC2 privada
 resource "aws_instance" "private_ec2_backend_2" {
@@ -105,47 +104,46 @@ resource "aws_instance" "private_ec2_backend_2" {
   }
 
   user_data = base64encode(<<-EOF
-      #!/bin/bash
-      mkdir -p /home/ubuntu/aws
-      if [ ! -d "/home/ubuntu/aws/.git" ]; then
-        sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
-      else
-        cd /home/ubuntu/aws
-        sudo git pull origin main
-      fi
-   # Instala o MySQL
-      sudo apt update
-      sudo apt install -y mysql-server
+    #!/bin/bash
+    mkdir -p /home/ubuntu/aws
+    if [ ! -d "/home/ubuntu/aws/.git" ]; then
+      sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
+    else
+      cd /home/ubuntu/aws
+      sudo git pull origin main
+    fi
+    # Instala o MySQL
+    sudo apt update
+    sudo apt install -y mysql-server
 
-      # Instala Docker e Docker Compose
-      sudo apt update
-      sudo apt install -y docker.io
+    # Instala Docker e Docker Compose
+    sudo apt update
+    sudo apt install -y docker.io
 
-      # Atualiza pacotes e instala Java
-          sudo apt-get install -y default-jdk
+    # Atualiza pacotes e instala Java
+    sudo apt-get install -y default-jdk
 
-          # Dar permissão de execução ao binário
-          sudo chmod +x /usr/local/bin/docker-compose
+    # Dar permissão de execução ao binário
+    sudo chmod +x /usr/local/bin/docker-compose
 
-          # Verifique se a instalação foi bem-sucedida
-          docker-compose --version
+    # Verifique se a instalação foi bem-sucedida
+    docker-compose --version
 
-          # Inicia e habilita o Docker
-          sudo systemctl start docker
-          sudo systemctl enable docker
+    # Inicia e habilita o Docker
+    sudo systemctl start docker
+    sudo systemctl enable docker
 
-          # Navega até o diretório do projeto
-          cd /home/ubuntu/aws
+    # Navega até o diretório do projeto
+    cd /home/ubuntu/aws
 
-          # Constrói a imagem Docker usando o Dockerfile
-          sudo docker build -t nhyira-api .
+    # Constrói a imagem Docker usando o Dockerfile
+    sudo docker build -t nhyira-api .
 
-          # Executa o Docker Compose para iniciar os serviços
-          sudo docker-compose up --build
-      EOF
-        )
-      }
-
+    # Executa o Docker Compose para iniciar os serviços
+    sudo docker-compose up --build
+  EOF
+  )
+}
 
 # API Gateway
 resource "aws_api_gateway_rest_api" "my_api" {
@@ -156,7 +154,7 @@ resource "aws_api_gateway_rest_api" "my_api" {
 # Load Balancer
 resource "aws_elb" "my_elb" {
   name               = "MyNewLoadBalancer" # Verifique se o nome já existe
-  availability_zones = ["us-east-1a", "us-east-1b"] # Adicione suas zonas de disponibilidade
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1d"] # Adicione suas zonas de disponibilidade
 
   listener {
     instance_port     = 80
@@ -213,7 +211,6 @@ resource "aws_lambda_function" "my_lambda" {
     Name = "MyLambdaFunction"
   }
 }
-
 
 # Role para a função Lambda
 resource "aws_iam_role" "lambda_exec" {

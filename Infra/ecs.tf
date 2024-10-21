@@ -1,6 +1,4 @@
-resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "my_ecs_cluster"
-}
+
 
 resource "aws_ecs_task_definition" "analise_task" {
   family                   = "analise_task"
@@ -92,26 +90,6 @@ resource "aws_ecs_task_definition" "analise_task" {
   }
 }
 
-resource "aws_ecs_service" "analise_service" {
-  name            = "analise_service"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.analise_task.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = ["subnet-09424067824895155"]  # Use a sua sub-rede válida
-    security_groups  = ["sg-08a6c790338e94c72"]      # Substitua pelo ID do seu grupo de segurança
-    assign_public_ip = true                          # Altere para true
-  }
-}
-
-resource "aws_efs_file_system" "mysql_data" {
-  performance_mode = "generalPurpose"
-  tags = {
-    Name = "mysql-data-efs"
-  }
-}
 
 resource "aws_efs_mount_target" "mysql_data_mount" {
   file_system_id   = aws_efs_file_system.mysql_data.id  # Removido `count.index`
