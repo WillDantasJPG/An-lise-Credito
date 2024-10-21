@@ -137,16 +137,6 @@ resource "aws_instance" "private_ec2_backend_2" {
   )
 }
 
-# EFS
-resource "aws_efs_file_system" "mysql_data" {
-  creation_token = "mysql_data"
-  performance_mode = "generalPurpose"
-
-  tags = {
-    Name = "mysql_data"
-  }
-}
-
 # Exemplo de API Gateway (removido os IAM roles)
 resource "aws_api_gateway_rest_api" "my_api" {
   name        = "my_api"
