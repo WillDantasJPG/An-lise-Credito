@@ -88,12 +88,13 @@ resource "aws_instance" "private_ec2_backend_2" {
     volume_type = "gp3"
   }
 
-subnets          = [var.subnet_id]  # Usando a variável subnet_id
-  security_groups  = [var.sg_id]      # Usando a variável sg_id
+  subnet_id          = var.subnet_id    # Usando a variável subnet_id
+  vpc_security_group_ids = [var.sg_id]  # Usando a variável sg_id
 
   tags = {
     Name = "analise-privada-ec2-02"
   }
+}
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
