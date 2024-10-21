@@ -7,7 +7,7 @@
 # Instância EC2 pública
 resource "aws_instance" "public_ec2_backend_1" {
   ami               = var.ami
-  availability_zone = var.az # Mantém a variável como fonte de zona de disponibilidade
+  availability_zone = var.az
   instance_type    = var.inst_type
 
   ebs_block_device {
@@ -18,6 +18,7 @@ resource "aws_instance" "public_ec2_backend_1" {
 
   key_name                    = "ti_key"
   subnet_id                   = var.subnet_id
+  associate_public_ip_address = true  # Esta configuração é necessária para instâncias públicas
   vpc_security_group_ids      = [var.sg_id]
 
   tags = {
@@ -44,14 +45,12 @@ resource "aws_instance" "public_ec2_backend_1" {
 
     # Instala Docker e Docker Compose
     apt update
-    apt install -y docker.io docker-compose
+    apt install -y docker.io
 
     # Baixar a versão mais recente do Docker Compose
     DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K[^\"]+')
     sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-    # Dar permissão de execução ao binário
-    chmod +x /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
 
     # Atualiza pacotes e instala Java
     apt-get install -y default-jdk
@@ -75,7 +74,7 @@ EOF
 # Instância EC2 privada
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
-  availability_zone = var.az # Mantém a variável como fonte de zona de disponibilidade
+  availability_zone = var.az
   instance_type    = var.inst_type
 
   ebs_block_device {
@@ -101,7 +100,7 @@ resource "aws_instance" "private_ec2_backend_2" {
 
     # Clonar ou atualizar o repositório
     if [ ! -d "/home/ubuntu/aws/.git" ]; then
-       sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
+      sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
     else
       cd /home/ubuntu/aws
       sudo git pull origin main  # Atualiza o repositório
@@ -113,14 +112,15 @@ resource "aws_instance" "private_ec2_backend_2" {
 
     # Instala Docker e Docker Compose
     apt update
-    apt install -y docker.io docker-compose
+    apt install -y docker.io
 
     # Baixar a versão mais recente do Docker Compose
     DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K[^\"]+')
     sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
 
-    # Dar permissão de execução ao binário
-    chmod +x /usr/local/bin/docker-compose
+    # Atualiza pacotes e instala Java
+    apt-get install -y default-jdk
 
     # Inicia e habilita o Docker
     systemctl start docker
@@ -157,7 +157,7 @@ resource "aws_api_gateway_rest_api" "my_api" {
 # Elastic Load Balancer
 resource "aws_elb" "my_elb" {
   name               = var.elb_name
-  availability_zone  = var.az # Mantém a variável como fonte de zona de disponibilidade
+  availability_zone  = var.az
 
   listener {
     instance_port     = 80
@@ -198,7 +198,7 @@ resource "aws_cognito_user_pool" "my_user_pool" {
 
 # Cognito User Pool Client
 resource "aws_cognito_user_pool_client" "my_client" {
-  name             = var.cognito_client_name
-  user_pool_id     = aws_cognito_user_pool.my_user_pool.id
-  generate_secret  = false
+  name         = var.cognito_client_name
+  user_pool_id = aws_cognito_user_pool.my_user_pool.id
+  generate_secret = false
 }
