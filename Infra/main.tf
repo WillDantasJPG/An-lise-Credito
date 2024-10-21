@@ -149,7 +149,7 @@ resource "aws_api_gateway_rest_api" "my_api" {
 # Elastic Load Balancer
 resource "aws_elb" "my_elb" {
   name               = var.elb_name
-  availability_zone  = var.az
+   availability_zones = [var.az]
 
   listener {
     instance_port     = 80
