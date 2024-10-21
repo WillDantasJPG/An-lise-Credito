@@ -115,7 +115,7 @@ resource "aws_efs_file_system" "mysql_data" {
   }
 }
 
-/
+
 variable "file_system_creation_tokens" {
   description = "Lista de tokens para a criação do File System"
   type        = list(string)
