@@ -10,14 +10,14 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"  # Corrigido para uma região válida
+  region = "us-east-1"
 }
 
 # Variável para a Subnet Privada
 variable "private_subnet_id" {
   description = "Private Subnet ID"
   type        = string
-  default     = "subnet-09424067824895155"  # Subnet padrão fornecida
+  default     = "subnet-09424067824895155"
 }
 
 # Instância EC2 pública
@@ -55,17 +55,10 @@ resource "aws_instance" "public_ec2_backend_1" {
     sudo apt install -y mysql-server
 
     # Instala Docker e Docker Compose
-    sudo apt update
     sudo apt install -y docker.io
 
     # Atualiza pacotes e instala Java
     sudo apt-get install -y default-jdk
-
-    # Dar permissão de execução ao binário
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    # Verifique se a instalação foi bem-sucedida
-    docker-compose --version
 
     # Inicia e habilita o Docker
     sudo systemctl start docker
@@ -83,7 +76,7 @@ resource "aws_instance" "public_ec2_backend_1" {
   )
 }
 
-# Instância EC2 privada
+# Instância EC2 privada (mantida para testes futuros)
 resource "aws_instance" "private_ec2_backend_2" {
   ami               = var.ami
   availability_zone = var.az
@@ -117,17 +110,10 @@ resource "aws_instance" "private_ec2_backend_2" {
     sudo apt install -y mysql-server
 
     # Instala Docker e Docker Compose
-    sudo apt update
     sudo apt install -y docker.io
 
     # Atualiza pacotes e instala Java
     sudo apt-get install -y default-jdk
-
-    # Dar permissão de execução ao binário
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    # Verifique se a instalação foi bem-sucedida
-    docker-compose --version
 
     # Inicia e habilita o Docker
     sudo systemctl start docker
@@ -172,97 +158,9 @@ resource "aws_security_group" "sg" {
   }
 }
 
-# Elastic Load Balancer (ELB)
-resource "aws_elb" "application_load_balancer" {
-  name               = "my-app-elb"
-  availability_zones = [var.az]
-
-  listener {
-    instance_port     = 80
-    instance_protocol = "HTTP"
-    lb_port           = 80
-    lb_protocol       = "HTTP"
-  }
-
-  health_check {
-    target              = "HTTP:80/"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold  = 2
-    unhealthy_threshold = 2
-  }
-
-  tags = {
-    Name = "my-app-elb"
-  }
-}
-
-# Sistema de Arquivos (EFS)
-resource "aws_efs_file_system" "my_efs" {
-  creation_token = "my-efs"
-
-  tags = {
-    Name = "my-efs"
-  }
-}
-
-# Montagem do EFS
-resource "aws_efs_mount_target" "my_efs_mount_target" {
-  file_system_id = aws_efs_file_system.my_efs.id
-  subnet_id      = var.private_subnet_id
-
-  security_groups = [aws_security_group.sg.id]
-}
-
-# API Gateway
-resource "aws_api_gateway_rest_api" "my_api" {
-  name        = "MyAPI"
-  description = "My API Gateway"
-}
-
-resource "aws_api_gateway_resource" "my_resource" {
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
-  path_part   = "items"
-}
-
-resource "aws_api_gateway_method" "my_method" {
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  resource_id = aws_api_gateway_resource.my_resource.id
-  http_method = "GET"
-  authorization = "NONE"
-}
-
-# IAM Role for Lambda
-resource "aws_iam_role" "lambda_role" {
-  name               = "lambda_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-        Effect = "Allow"
-        Sid    = ""
-      }
-    ]
-  })
-}
-
-# Função Lambda
-resource "aws_lambda_function" "my_lambda" {
-  function_name = "my_lambda_function"
-  handler       = "index.handler"
-  runtime       = "nodejs14.x"
-
-  s3_bucket     = "my_lambda_bucket"
-  s3_key        = "my_lambda_function.zip"
-  role          = aws_iam_role.lambda_role.arn
-
-  # Outras configurações, se necessárias
-}
+# Removido Elastic Load Balancer (ELB) para evitar problemas
+# Removido Sistema de Arquivos (EFS) para evitar problemas
+# Removido IAM Role para Lambda e Função Lambda (se não forem necessários)
 
 output "api_gateway_url" {
   value = "${aws_api_gateway_rest_api.my_api.id}.execute-api.${var.region}.amazonaws.com/prod/items"
