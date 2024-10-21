@@ -80,7 +80,7 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory:  ./infra
+        working-directory:  ./Infra
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}"
