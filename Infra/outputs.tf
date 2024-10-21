@@ -1,7 +1,3 @@
-output "ecs_service_name" {
-  value = aws_ecs_service.analise_service.name
-}
-
 output "subnet_id" {
   description = "Subnet ID"
   value       = "subnet-09424067824895155"
