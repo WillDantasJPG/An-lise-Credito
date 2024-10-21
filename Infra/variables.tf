@@ -4,6 +4,7 @@ variable "api_gateway_name" {
   default     = "MyApiGateway"
 }
 
+
 variable "elb_name" {
   description = "Nome do Elastic Load Balancer"
   type        = string
@@ -59,7 +60,6 @@ variable "key_pair_name" {
   type        = string
   default     = "tf_key"
 }
-
 
 
 variable "ami" {

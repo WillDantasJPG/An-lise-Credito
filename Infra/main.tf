@@ -13,6 +13,13 @@ provider "aws" {
   region = "us-east-1"  # Corrigido para uma região válida
 }
 
+# Variável para a Subnet Privada
+variable "private_subnet_id" {
+  description = "Private Subnet ID"
+  type        = string
+  default     = "subnet-09424067824895155"  # Subnet padrão fornecida
+}
+
 # Instância EC2 pública
 resource "aws_instance" "public_ec2_backend_1" {
   ami               = var.ami
@@ -25,7 +32,7 @@ resource "aws_instance" "public_ec2_backend_1" {
     volume_type = "gp3"
   }
 
-  key_name                    = "ti_key"
+  key_name                    = var.key_pair_name
   subnet_id                   = var.subnet_id
   associate_public_ip_address = true
   vpc_security_group_ids      = [var.sg_id]
@@ -88,54 +95,54 @@ resource "aws_instance" "private_ec2_backend_2" {
     volume_type = "gp3"
   }
 
-  key_name                 = "ti_key"
-  subnet_id                = var.private_subnet_id
-  vpc_security_group_ids   = [var.sg_id]
+  key_name               = var.key_pair_name
+  subnet_id              = var.private_subnet_id
+  vpc_security_group_ids = [var.sg_id]
 
   tags = {
     Name = "analise-privada-ec2-02"
   }
 
-   user_data = base64encode(<<-EOF
-     #!/bin/bash
-     mkdir -p /home/ubuntu/aws
-     if [ ! -d "/home/ubuntu/aws/.git" ]; then
-       sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
-     else
-       cd /home/ubuntu/aws
-       sudo git pull origin main
-     fi
-     # Instala o MySQL
-     sudo apt update
-     sudo apt install -y mysql-server
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    mkdir -p /home/ubuntu/aws
+    if [ ! -d "/home/ubuntu/aws/.git" ]; then
+      sudo git clone https://github.com/WillDantasJPG/Analise-Credito.git /home/ubuntu/aws
+    else
+      cd /home/ubuntu/aws
+      sudo git pull origin main
+    fi
+    # Instala o MySQL
+    sudo apt update
+    sudo apt install -y mysql-server
 
-     # Instala Docker e Docker Compose
-     sudo apt update
-     sudo apt install -y docker.io
+    # Instala Docker e Docker Compose
+    sudo apt update
+    sudo apt install -y docker.io
 
-     # Atualiza pacotes e instala Java
-     sudo apt-get install -y default-jdk
+    # Atualiza pacotes e instala Java
+    sudo apt-get install -y default-jdk
 
-     # Dar permissão de execução ao binário
-     sudo chmod +x /usr/local/bin/docker-compose
+    # Dar permissão de execução ao binário
+    sudo chmod +x /usr/local/bin/docker-compose
 
-     # Verifique se a instalação foi bem-sucedida
-     docker-compose --version
+    # Verifique se a instalação foi bem-sucedida
+    docker-compose --version
 
-     # Inicia e habilita o Docker
-     sudo systemctl start docker
-     sudo systemctl enable docker
+    # Inicia e habilita o Docker
+    sudo systemctl start docker
+    sudo systemctl enable docker
 
-     # Navega até o diretório do projeto
-     cd /home/ubuntu/aws
+    # Navega até o diretório do projeto
+    cd /home/ubuntu/aws
 
-     # Constrói a imagem Docker usando o Dockerfile
-     sudo docker build -t nhyira-api .
+    # Constrói a imagem Docker usando o Dockerfile
+    sudo docker build -t nhyira-api .
 
-     # Executa o Docker Compose para iniciar os serviços
-     sudo docker-compose up --build
-   EOF
-   )
+    # Executa o Docker Compose para iniciar os serviços
+    sudo docker-compose up --build
+  EOF
+  )
 }
 
 # Grupo de Segurança
@@ -220,12 +227,31 @@ resource "aws_api_gateway_resource" "my_resource" {
 }
 
 resource "aws_api_gateway_method" "my_method" {
-  rest_api_id   = aws_api_gateway_rest_api.my_api.id
-  resource_id   = aws_api_gateway_resource.my_resource.id
-  http_method   = "GET"
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  resource_id = aws_api_gateway_resource.my_resource.id
+  http_method = "GET"
   authorization = "NONE"
 }
 
+# IAM Role for Lambda
+resource "aws_iam_role" "lambda_role" {
+  name               = "lambda_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      }
+    ]
+  })
+}
+
+# Função Lambda
 resource "aws_lambda_function" "my_lambda" {
   function_name = "my_lambda_function"
   handler       = "index.handler"
@@ -233,11 +259,11 @@ resource "aws_lambda_function" "my_lambda" {
 
   s3_bucket     = "my_lambda_bucket"
   s3_key        = "my_lambda_function.zip"
-  role          = aws_iam_role.lambda_role.arn  # Adicione esta linha
+  role          = aws_iam_role.lambda_role.arn
 
   # Outras configurações, se necessárias
 }
 
 output "api_gateway_url" {
-  value = aws_api_gateway_rest_api.my_api.execution_invoke_url
+  value = "${aws_api_gateway_rest_api.my_api.id}.execute-api.${var.region}.amazonaws.com/prod/items"  # Substituído por um output válido
 }
