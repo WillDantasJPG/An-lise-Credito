@@ -1,32 +1,3 @@
-resource "aws_iam_role" "ecs_execution_role" {
-  name = "ecs_execution_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role" "ecs_task_role" {
-  name = "ecs_task_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "my_ecs_cluster"
@@ -36,8 +7,6 @@ resource "aws_ecs_task_definition" "analise_task" {
   family                   = "analise_task"
   network_mode             = "awsvpc"
   requires_compatibilities  = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
   cpu                      = "512"
   memory                   = "1024"
 

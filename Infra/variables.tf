@@ -38,7 +38,7 @@ variable "cognito_client_name" {
 variable "az" {
   description = "Availability Zone"
   type        = string
-  default     = "us-east-1a"
+  default     = "us-east-1d"
 }
 
 variable "key_pair_name" {
@@ -46,12 +46,6 @@ variable "key_pair_name" {
   type        = string
   default     = "tf_key"
 }
-
-
-
-
-
-
 
 variable "ami" {
   description = "AMI ID"
